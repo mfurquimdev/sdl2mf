@@ -9,6 +9,7 @@ public:
 	~Game();
 
 	bool Initialize();
+	bool LoadAssets();
 	void Display();
 	void Shutdown();
 
@@ -22,4 +23,7 @@ private:
 
 	// The surface contained by the window
 	SDL_Surface* m_screenSurface = NULL;
+
+	// The image wloaded and shown on the screen
+	SDL_Surface* m_helloWorld = NULL;
 };
