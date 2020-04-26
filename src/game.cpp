@@ -69,8 +69,14 @@ Game::Display()
 	// Fill the surface white
 	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
 
+	// Center the image on screen
+	SDL_Rect dstrect = { (m_screenSurface->w - m_helloWorld->w)/2,
+						 (m_screenSurface->h - m_helloWorld->h)/2,
+						  m_helloWorld->w,
+						  m_helloWorld->h, };
+
 	// Apply image
-	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, NULL);
+	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &dstrect);
 	
 	// Update the surface
 	SDL_UpdateWindowSurface( m_window );
