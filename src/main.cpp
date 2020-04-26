@@ -4,11 +4,12 @@ int main( int argc, char* args[] )
 {
 	Game game;
 
-	bool initialized = game.Initialize();
-
-	if( initialized )
+	if( game.Initialize() )
 	{
-		game.Display();
+		if( game.LoadAssets() )
+		{
+			game.Display();
+		}
 	}
 
 	game.Shutdown();
