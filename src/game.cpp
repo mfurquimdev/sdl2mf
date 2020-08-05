@@ -2,20 +2,55 @@
 
 #include <stdio.h>
 
-Game::Game()
+Game::Game( int argc, char* args[] )
 {
 	fprintf( stderr, "Game::Game()\n" );
 	m_window = NULL;
 	m_screenSurface = NULL;
+
+	initialize();
+	loadAssets();
 }
 
 Game::~Game()
 {
 	fprintf( stderr, "Game::~Game()\n" );
+	shutdown();
 }
 
+void
+Game::Loop()
+{
+	do
+	{
+		handleEvents();
+		draw();
+	} while ( !isGameOver() );
+}
+
+void
+Game::handleEvents()
+{
+	while( SDL_PollEvent( &m_event ) )
+	{
+		if( event().type == SDL_QUIT )
+		{
+			gameOver();
+		}
+
+		if( event().type == SDL_KEYDOWN )
+		{
+			if( event().key.keysym.sym == SDLK_q )
+			{
+				gameOver();
+			}
+		}
+	}
+}
+
+
 bool
-Game::Initialize()
+Game::initialize()
 {
 	bool initialized = true;
 
@@ -44,7 +79,7 @@ Game::Initialize()
 }
 
 bool
-Game::LoadAssets()
+Game::loadAssets()
 {
 	bool assetsLoaded = true;
 
@@ -70,7 +105,7 @@ Game::LoadAssets()
 }
 
 void
-Game::Display()
+Game::draw()
 {
 	// Get window surface
 	m_screenSurface = SDL_GetWindowSurface( m_window );
@@ -93,41 +128,16 @@ Game::Display()
 		m_x->h,
 	};
 
-	// Main loop flag
-	bool quit = false;
+	// Apply image
+	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &helloWorldDstrect );
+	SDL_BlitSurface( m_x, NULL, m_screenSurface, &xDstrect );
 
-	// Event handler
-	SDL_Event e;
-
-	while( !quit )
-	{
-		while( SDL_PollEvent( &e ) )
-		{
-			if( e.type == SDL_QUIT )
-			{
-				quit = true;
-			}
-
-			if( e.type == SDL_KEYDOWN )
-			{
-				if( e.key.keysym.sym == SDLK_q )
-				{
-					quit = true;
-				}
-			}
-		}
-
-		// Apply image
-		SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &helloWorldDstrect );
-		SDL_BlitSurface( m_x, NULL, m_screenSurface, &xDstrect );
-
-		// Update the surface
-		SDL_UpdateWindowSurface( m_window );
-	}
+	// Update the surface
+	SDL_UpdateWindowSurface( m_window );
 }
 
 void
-Game::Shutdown()
+Game::shutdown()
 {
 	fprintf( stderr, "Shutdown()\n" );
 	// Deallocate surface
@@ -143,5 +153,22 @@ Game::Shutdown()
 
 	// Quit SDL subsystems
 	SDL_Quit();
-	fprintf( stderr, "Shutdown()\n" );
+}
+
+bool
+Game::isGameOver()
+{
+	return m_quit;
+}
+
+void
+Game::gameOver()
+{
+	m_quit = true;
+}
+
+SDL_Event
+Game::event()
+{
+	return m_event;
 }
