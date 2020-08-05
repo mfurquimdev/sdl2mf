@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "event.h"
+
 class Game {
 
 public:
@@ -9,6 +11,10 @@ public:
 	~Game();
 
 	void Loop();
+
+	// Gets and Sets
+	bool isGameOver();
+	void gameOver();
 
 private:
 
@@ -20,20 +26,15 @@ private:
 	// Game's main functions
 	bool initialize();
 	bool loadAssets();
-	void handleEvents();
 	void draw();
 	void shutdown();
-
-	// Gets and Sets
-	bool isGameOver();
-	void gameOver();
-	SDL_Event event();
 
 	// Variables
 	bool m_quit = false;
 
 	// The event handler
-	SDL_Event m_event;
+	Event m_event;
+	void handlingEvents();
 
 	// The window to be rendered to
 	SDL_Window* m_window = NULL;

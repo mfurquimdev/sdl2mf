@@ -1,4 +1,5 @@
 #include "game.h"
+#include "event.h"
 
 #include <stdio.h>
 
@@ -23,31 +24,16 @@ Game::Loop()
 {
 	do
 	{
-		handleEvents();
+		handlingEvents();
 		draw();
 	} while ( !isGameOver() );
 }
 
 void
-Game::handleEvents()
+Game::handlingEvents()
 {
-	while( SDL_PollEvent( &m_event ) )
-	{
-		if( event().type == SDL_QUIT )
-		{
-			gameOver();
-		}
-
-		if( event().type == SDL_KEYDOWN )
-		{
-			if( event().key.keysym.sym == SDLK_q )
-			{
-				gameOver();
-			}
-		}
-	}
+	m_event.HandlingEvent( *this );
 }
-
 
 bool
 Game::initialize()
@@ -167,8 +153,3 @@ Game::gameOver()
 	m_quit = true;
 }
 
-SDL_Event
-Game::event()
-{
-	return m_event;
-}
