@@ -1,19 +1,42 @@
 #include "game.h"
+#include "event.h"
 
 #include <stdio.h>
 
-Game::Game()
+Game::Game( int argc, char* args[] )
 {
+	fprintf( stderr, "Game::Game()\n" );
 	m_window = NULL;
 	m_screenSurface = NULL;
+
+	initialize();
+	loadAssets();
 }
 
 Game::~Game()
 {
+	fprintf( stderr, "Game::~Game()\n" );
+	shutdown();
+}
+
+void
+Game::Loop()
+{
+	do
+	{
+		handlingEvents();
+		draw();
+	} while ( !isGameOver() );
+}
+
+void
+Game::handlingEvents()
+{
+	m_event.HandlingEvent( *this );
 }
 
 bool
-Game::Initialize()
+Game::initialize()
 {
 	bool initialized = true;
 
@@ -42,26 +65,33 @@ Game::Initialize()
 }
 
 bool
-Game::LoadAssets()
+Game::loadAssets()
 {
 	bool assetsLoaded = true;
 
-	const char* file_path = "assets/lazyfoo/hello_world.bmp";
+	const char* hello_world_file_path = "assets/lazyfoo/hello_world.bmp";
+	const char* x_file_path = "assets/lazyfoo/x.bmp";
 
-	// Load an image
-	m_helloWorld = SDL_LoadBMP( file_path );
-
+	// Load image
+	m_helloWorld = SDL_LoadBMP( hello_world_file_path );
 	if( m_helloWorld == NULL )
 	{
-		printf( "Unable to load image %s! SDL Error: %s\n", file_path, SDL_GetError() );
-		 assetsLoaded = false;
+		printf( "Unable to load image %s! SDL Error: %s\n", hello_world_file_path, SDL_GetError() );
+		assetsLoaded = false;
+	}
+
+	m_x = SDL_LoadBMP( x_file_path );
+	if( m_x == NULL )
+	{
+		printf( "Unable to load image %s! SDL Error: %s\n", x_file_path, SDL_GetError() );
+		assetsLoaded = false;
 	}
 
 	return assetsLoaded;
 }
 
 void
-Game::Display()
+Game::draw()
 {
 	// Get window surface
 	m_screenSurface = SDL_GetWindowSurface( m_window );
@@ -70,27 +100,38 @@ Game::Display()
 	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
 
 	// Center the image on screen
-	SDL_Rect dstrect = { (m_screenSurface->w - m_helloWorld->w)/2,
-						 (m_screenSurface->h - m_helloWorld->h)/2,
-						  m_helloWorld->w,
-						  m_helloWorld->h, };
+	SDL_Rect helloWorldDstrect = {
+		(m_screenSurface->w - m_helloWorld->w)/2,
+		(m_screenSurface->h - m_helloWorld->h)/2,
+		m_helloWorld->w,
+		m_helloWorld->h,
+	};
+
+	SDL_Rect xDstrect = {
+		(m_screenSurface->w - m_x->w)/2,
+		(m_screenSurface->h - m_x->h)/2,
+		m_x->w,
+		m_x->h,
+	};
 
 	// Apply image
-	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &dstrect);
-	
+	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &helloWorldDstrect );
+	SDL_BlitSurface( m_x, NULL, m_screenSurface, &xDstrect );
+
 	// Update the surface
 	SDL_UpdateWindowSurface( m_window );
-
-	// Wait two seconds
-	SDL_Delay( 2000 );
 }
 
 void
-Game::Shutdown()
+Game::shutdown()
 {
+	fprintf( stderr, "Shutdown()\n" );
 	// Deallocate surface
 	SDL_FreeSurface( m_helloWorld );
 	m_helloWorld = NULL;
+
+	SDL_FreeSurface( m_x );
+	m_x = NULL;
 
 	// Destroy window
 	SDL_DestroyWindow( m_window );
@@ -99,3 +140,16 @@ Game::Shutdown()
 	// Quit SDL subsystems
 	SDL_Quit();
 }
+
+bool
+Game::isGameOver()
+{
+	return m_quit;
+}
+
+void
+Game::gameOver()
+{
+	m_quit = true;
+}
+

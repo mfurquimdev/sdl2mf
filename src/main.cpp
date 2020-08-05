@@ -2,17 +2,8 @@
 
 int main( int argc, char* args[] )
 {
-	Game game;
-
-	if( game.Initialize() )
-	{
-		if( game.LoadAssets() )
-		{
-			game.Display();
-		}
-	}
-
-	game.Shutdown();
+	class Game game( argc, args );
+	game.Loop();
 
 	return 0;
 }
