@@ -41,3 +41,6 @@ lessons
 
 # Session.vim
 *.vim
+
+# Debug output
+log.err

@@ -69,7 +69,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) -c $^ -o $@ $(CFLAGS) $(INC)
 
 run: $(TARGET)
-	$(TARGET)
+	$(TARGET) 2>&1 | tee log.err
 
 
 clean:
