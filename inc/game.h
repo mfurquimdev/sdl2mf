@@ -24,6 +24,7 @@ private:
 	// The surface contained by the window
 	SDL_Surface* m_screenSurface = NULL;
 
-	// The image wloaded and shown on the screen
+	// The image loaded and shown on the screen
 	SDL_Surface* m_helloWorld = NULL;
+	SDL_Surface* m_x = NULL;
 };
