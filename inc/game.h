@@ -2,7 +2,12 @@
 
 #include <SDL2/SDL.h>
 
+#include <vector>
+#include <utility>
+
 #include "event.h"
+
+using point = std::pair< int, int >;
 
 class Game {
 
@@ -15,6 +20,9 @@ public:
 	// Gets and Sets
 	bool isGameOver();
 	void gameOver();
+
+	void addPoint( int, int );
+	void removePoint();
 
 private:
 
@@ -31,6 +39,8 @@ private:
 
 	// Variables
 	bool m_quit = false;
+
+	std::vector< point > points;
 
 	// The event handler
 	Event m_event;

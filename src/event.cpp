@@ -51,14 +51,15 @@ Event::handle_event_type( SDL_Event &event, Game &game )
 void
 Event::handle_event_keydown( SDL_Event& event, Game &game )
 {
-	switch( event.key.keysym.sym ) {
-		case (SDLK_ESCAPE):
-		case (SDLK_q):
-			game.gameOver();
-			break;
+	switch( event.key.keysym.sym )
+	{
+	case (SDLK_ESCAPE):
+	case (SDLK_q):
+		game.gameOver();
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -75,4 +76,19 @@ Event::handle_event_mouse_button_up( SDL_Event& event, Game &game )
 void
 Event::handle_event_mouse_button_down( SDL_Event& event, Game &game )
 {
+	switch( event.button.button )
+	{
+	case( SDL_BUTTON_LEFT ):
+		int x, y;
+		SDL_GetMouseState( &x, &y );
+		game.addPoint( x, y );
+		break;
+
+	case( SDL_BUTTON_RIGHT ):
+		game.removePoint();
+		break;
+
+	default:
+		break;
+	}
 }

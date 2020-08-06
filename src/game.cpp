@@ -93,30 +93,16 @@ Game::loadAssets()
 void
 Game::draw()
 {
-	// Get window surface
-	m_screenSurface = SDL_GetWindowSurface( m_window );
-
 	// Fill the surface white
-	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
+	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0x2E, 0x34, 0x40 ) );
 
-	// Center the image on screen
-	SDL_Rect helloWorldDstrect = {
-		(m_screenSurface->w - m_helloWorld->w)/2,
-		(m_screenSurface->h - m_helloWorld->h)/2,
-		m_helloWorld->w,
-		m_helloWorld->h,
-	};
-
-	SDL_Rect xDstrect = {
-		(m_screenSurface->w - m_x->w)/2,
-		(m_screenSurface->h - m_x->h)/2,
-		m_x->w,
-		m_x->h,
-	};
-
-	// Apply image
-	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &helloWorldDstrect );
-	SDL_BlitSurface( m_x, NULL, m_screenSurface, &xDstrect );
+	int w = 5;
+	int h = 5;
+	for( auto p: points )
+	{
+		const SDL_Rect dstrect = { p.first, p.second, w, h };
+		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
+	}
 
 	// Update the surface
 	SDL_UpdateWindowSurface( m_window );
@@ -126,12 +112,7 @@ void
 Game::shutdown()
 {
 	fprintf( stderr, "Shutdown()\n" );
-	// Deallocate surface
-	SDL_FreeSurface( m_helloWorld );
-	m_helloWorld = NULL;
-
-	SDL_FreeSurface( m_x );
-	m_x = NULL;
+	points.clear();
 
 	// Destroy window
 	SDL_DestroyWindow( m_window );
@@ -139,6 +120,21 @@ Game::shutdown()
 
 	// Quit SDL subsystems
 	SDL_Quit();
+}
+
+void
+Game::addPoint( int x, int y )
+{
+	points.push_back( std::make_pair( x, y ) );
+}
+
+void
+Game::removePoint()
+{
+	if( !points.empty() )
+	{
+		points.pop_back();
+	}
 }
 
 bool
