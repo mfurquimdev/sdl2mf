@@ -53,9 +53,33 @@ Event::handle_event_keydown( SDL_Event& event, Game &game )
 {
 	switch( event.key.keysym.sym )
 	{
-	case (SDLK_ESCAPE):
-	case (SDLK_q):
+	case( SDLK_ESCAPE ):
+	case( SDLK_q ):
 		game.gameOver();
+		break;
+
+	case( SDLK_k ):
+		game.PointUp();
+		break;
+
+	case( SDLK_j ):
+		game.PointDown();
+		break;
+
+	case( SDLK_h ):
+		game.PointLeft();
+		break;
+
+	case( SDLK_l ):
+		game.PointRight();
+		break;
+
+	case( SDLK_a ):
+		game.PrevPoint();
+		break;
+
+	case( SDLK_d ):
+		game.NextPoint();
 		break;
 
 	default:
