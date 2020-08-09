@@ -82,6 +82,14 @@ Event::handle_event_keydown( SDL_Event& event, Game &game )
 		game.NextPoint();
 		break;
 
+	case( SDLK_w ):
+		game.NextNode();
+		break;
+
+	case( SDLK_s ):
+		game.ToggleTrack();
+		break;
+
 	default:
 		break;
 	}

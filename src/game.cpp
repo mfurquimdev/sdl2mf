@@ -43,8 +43,12 @@ Game::handlingEvents()
 	m_event.HandlingEvent( *this );
 	int x, y;
 	SDL_GetMouseState( &x, &y );
-	fprintf( stderr, "Mouse: (%d,%d)\n", x, y );
-	addPoint( x, y );
+//	fprintf( stderr, "Mouse: (%d,%d)\n", x, y );
+
+	if( track == 1 )
+	{
+		addPoint( x, y );
+	}
 }
 
 bool
@@ -109,46 +113,56 @@ Game::draw()
 	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0x2E, 0x34, 0x40 ) );
 
 	// Draw Spline
-	int sw = 3;
-	int sh = 3;
+	int sw = 2;
+	int sh = 2;
 
-	for( float t = 0.0f; t < (float) path.points.size(); t += 0.005f )
+	if( !path.points.empty() )
 	{
-		struct sPoint2D p = path.GetSplinePoint( t );
+		for( float t = 0.0f; t < (float) path.points.size(); t += 0.005f )
+		{
+			struct sPoint2D p = path.GetSplinePoint( t );
 
-		const SDL_Rect dstrect = { p.x, p.y, sw, sh };
-		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
+			const SDL_Rect dstrect = { p.x-1, p.y-1, sw, sh };
+			SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
+		}
 	}
 
-	int w = 5;
-	int h = 5;
+	int w = 10;
+	int h = 10;
 
 	for( auto p: path.points )
 	{
-		const SDL_Rect dstrect = { p.x, p.y, w, h };
+		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
 		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xBF, 0x61, 0x6A ) );
 	}
 
-	struct sPoint2D p = path.points.at(nSelectedPoint);
-	const SDL_Rect dstrect = { p.x, p.y, w, h };
-	SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEB, 0xCB, 0x68 ) );
+	if( !path.points.empty() )
+	{
+		struct sPoint2D p = path.points.at(nSelectedPoint);
+		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEB, 0xCB, 0x68 ) );
+	}
 
-	//for( auto p: points )
-	//{
-	//	const SDL_Rect dstrect = { p.first, p.second, w, h };
-	//	SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
-	//}
+	if( !path.points.empty() )
+	{
+		struct sPoint2D p = path.points.at(node-1);
+		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xA3, 0xBE, 0x8C ) );
+	}
 
 	// Update the surface
 	SDL_UpdateWindowSurface( m_window );
-	removePoint();
+
+	if( track == 1 )
+	{
+		removePoint();
+	}
 }
 
 void
 Game::shutdown()
 {
 	fprintf( stderr, "Shutdown()\n" );
-	points.clear();
 
 	// Destroy window
 	SDL_DestroyWindow( m_window );
@@ -247,4 +261,22 @@ const int
 Game::ScreenWidth()
 {
 	return DEFAULT_SCREEN_WIDTH;
+}
+
+void
+Game::NextNode()
+{
+	node++;
+	if( node >= path.points.size() + 1)
+	{
+		node = 1;
+		lap++;
+	}
+	fprintf( stderr, "Node: %d\tLap: %d\n", node, lap );
+}
+
+void
+Game::ToggleTrack()
+{
+	track ^= 1;
 }
