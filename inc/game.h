@@ -149,6 +149,54 @@ public:
 			return (float)i + ( p / points[i].length );
 
 		}
+
+		float ClosestIndex( int node, int nextNode, struct sPoint2D mouse)
+		{
+			fprintf( stderr, "Node: %d\tNext: %d\tMouse: (%f,%f)\n", node, nextNode, mouse.x, mouse.y);
+			struct sPoint2D closest = { 0.0f, 0.0f, 0.0f };
+			float closestLength = 999999.9f;
+			float closestIndex = 0.0f;
+
+			if( node < nextNode )
+			{
+				for( float t = node; t < nextNode; t += 0.005f )
+				{
+					struct sPoint2D p = GetSplinePoint( t );
+					
+					float dx = mouse.x - p.x;
+					float dy = mouse.y - p.y;
+
+					float length = sqrtf( ( dx * dx ) + ( dy * dy ) );
+					if( closestLength > length )
+					{
+						closestLength = length;
+						closestIndex = t;
+						closest = p;
+					}
+				}
+			}
+			else
+			{
+				for( float t = node; t < points.size() ; t += 0.005f )
+				{
+					struct sPoint2D p = GetSplinePoint( t );
+
+					
+					float dx = mouse.x - p.x;
+					float dy = mouse.y - p.y;
+
+					float length = sqrtf( ( dx * dx ) + ( dy * dy ) );
+					if( closestLength > length )
+					{
+						closestLength = length;
+						closestIndex = t;
+						closest = p;
+					}
+				}
+			}
+			return closestIndex;
+		}
+		
 	};
 
 
@@ -156,11 +204,17 @@ public:
 
 	int nSelectedPoint = 0;
 
-	int node = 1;
+	int node = 0;
+	int nextNode = 1;
 	int lap = 1;
 
-	int track = 1;
+	int track = 0;
 	void ToggleTrack();
+
+	int agent = 0;
+	void ToggleAgent();
+
+	struct sPoint2D mouse;
 
 private:
 
@@ -184,6 +238,8 @@ private:
 
 	// The window to be rendered to
 	SDL_Window* m_window = NULL;
+
+	SDL_Renderer *m_renderer = NULL;
 
 	// The surface contained by the window
 	SDL_Surface* m_screenSurface = NULL;

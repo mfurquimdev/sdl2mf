@@ -90,6 +90,10 @@ Event::handle_event_keydown( SDL_Event& event, Game &game )
 		game.ToggleTrack();
 		break;
 
+	case( SDLK_x ):
+		game.ToggleAgent();
+		break;
+
 	default:
 		break;
 	}

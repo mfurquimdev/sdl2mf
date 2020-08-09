@@ -13,11 +13,11 @@ Game::Game( int argc, char* args[] )
 	initialize();
 	loadAssets();
 
-//	for( int i = 0; i < 10; i++ )
-//	{
-//		path.points.push_back( { 200.0f * sinf( (float)i / 10.0f * 3.14159f * 2.0f ) + ScreenWidth() / 2,
-//								 200.0f * cosf( (float)i / 10.0f * 3.14159f * 2.0f ) + ScreenHeight() / 2 } );
-//	}
+	for( int i = 9; i >= 0; i-- )
+	{
+		path.points.push_back( { 200.0f * sinf( (float)i / 10.0f * 3.14159f * 2.0f ) + ScreenWidth() / 2,
+								 200.0f * cosf( (float)i / 10.0f * 3.14159f * 2.0f ) + ScreenHeight() / 2 } );
+	}
 }
 
 Game::~Game()
@@ -43,6 +43,8 @@ Game::handlingEvents()
 	m_event.HandlingEvent( *this );
 	int x, y;
 	SDL_GetMouseState( &x, &y );
+	mouse.x = (float) x;
+	mouse.y = (float) y;
 //	fprintf( stderr, "Mouse: (%d,%d)\n", x, y );
 
 	if( track == 1 )
@@ -73,7 +75,16 @@ Game::initialize()
 		}
 		else
 		{
-			m_screenSurface = SDL_GetWindowSurface( m_window );
+			m_renderer = SDL_CreateRenderer( m_window, -1, SDL_RENDERER_SOFTWARE );
+			if( m_renderer == NULL )
+			{
+				fprintf( stderr, "Renderer could not be created! SDL_Error: %s\n", SDL_GetError() );
+				initialized = false;
+			}
+			else
+			{
+				m_screenSurface = SDL_GetWindowSurface( m_window );
+			}
 		}
 	}
 
@@ -145,12 +156,38 @@ Game::draw()
 
 	if( !path.points.empty() )
 	{
-		struct sPoint2D p = path.points.at(node-1);
+		struct sPoint2D p = path.points.at(node);
 		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
 		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xA3, 0xBE, 0x8C ) );
 	}
 
+	if( !path.points.empty() )
+	{
+		struct sPoint2D p = path.points.at(nextNode);
+		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xA3, 0xBE, 0x8C ) );
+	}
+
+	if( agent == 1 )
+	{
+//		SDL_SetRenderDrawColor( m_renderer, 94, 129, 172, SDL_ALPHA_OPAQUE );
+		SDL_SetRenderDrawColor( m_renderer, 136, 192, 208, SDL_ALPHA_OPAQUE );
+		
+		float i = path.ClosestIndex( node, nextNode, mouse );
+		fprintf( stderr, "Idx: %f\n", i );
+		struct sPoint2D p = path.GetSplinePoint( i );
+		struct sPoint2D g = path.GetSplineGradient( i );
+		fprintf( stderr, "P: (%d,%d)\tG: (%d,%d)\n", p.x, p.y, g.x, g.y );
+		float r = atan2( -g.y, g.x );
+		struct sPoint2D p1 = { (int)  10.0f * sin(r)  + p.x, (int)  10.0f * cos(r) + p.y };
+		struct sPoint2D p2 = { (int) -10.0f * sin(r)  + p.x, (int) -10.0f * cos(r) + p.y };
+
+		fprintf( stderr, "Line: (%d,%d) -- (%d,%d)\n", p1.x, p1.y, p2.x, p2.y );
+		SDL_RenderDrawLine( m_renderer, p1.x, p1.y, p2.x, p2.y);
+	}
+
 	// Update the surface
+	SDL_RenderPresent( m_renderer );
 	SDL_UpdateWindowSurface( m_window );
 
 	if( track == 1 )
@@ -163,6 +200,9 @@ void
 Game::shutdown()
 {
 	fprintf( stderr, "Shutdown()\n" );
+
+	SDL_DestroyRenderer( m_renderer );
+	m_renderer = NULL;
 
 	// Destroy window
 	SDL_DestroyWindow( m_window );
@@ -267,11 +307,18 @@ void
 Game::NextNode()
 {
 	node++;
-	if( node >= path.points.size() + 1)
+	if( node >= path.points.size() )
 	{
-		node = 1;
+		node = 0;
 		lap++;
 	}
+
+	nextNode = node + 1;
+	if( nextNode >= path.points.size() )
+	{
+		nextNode = 0;
+	}
+		
 	fprintf( stderr, "Node: %d\tLap: %d\n", node, lap );
 }
 
@@ -279,4 +326,10 @@ void
 Game::ToggleTrack()
 {
 	track ^= 1;
+}
+
+void
+Game::ToggleAgent()
+{
+	agent ^= 1;
 }
