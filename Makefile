@@ -43,6 +43,7 @@ INC = -I${INC_DIR}
 # Compilador, flags e bibliotecas
 #-------------------------------------------------------------------------------
 CC=g++
+EM=em++
 CFLAGS= -Wall -Wextra -pedantic -ansi -std=c++17
 LFLAGS= -lSDL2
 
@@ -54,6 +55,9 @@ all:
 	@echo
 	@echo Compiling
 	$(MAKE) $(TARGET)
+
+em:
+	$(EM) -v -s "ENVIRONMENT=web" -s "USE_SDL=2" -o $(TARGET).html $(SRC) $(LIB) $(INC) $(LFLAGS) $(CFLAGS)
 
 dirs:
 	@mkdir -vp $(BIN_DIR) $(OBJ_DIR)

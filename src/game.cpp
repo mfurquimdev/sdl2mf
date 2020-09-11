@@ -133,7 +133,7 @@ Game::draw()
 		{
 			struct sPoint2D p = path.GetSplinePoint( t );
 
-			const SDL_Rect dstrect = { p.x-1, p.y-1, sw, sh };
+			const SDL_Rect dstrect = { static_cast<int>(p.x-1), static_cast<int>(p.y-1), sw, sh };
 			SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
 		}
 	}
@@ -143,28 +143,28 @@ Game::draw()
 
 	for( auto p: path.points )
 	{
-		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		const SDL_Rect dstrect = { static_cast<int>(p.x-5), static_cast<int>(p.y-5), w, h };
 		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xBF, 0x61, 0x6A ) );
 	}
 
 	if( !path.points.empty() )
 	{
 		struct sPoint2D p = path.points.at(nSelectedPoint);
-		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		const SDL_Rect dstrect = { static_cast<int>(p.x-5), static_cast<int>(p.y-5), w, h };
 		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xEB, 0xCB, 0x68 ) );
 	}
 
 	if( !path.points.empty() )
 	{
 		struct sPoint2D p = path.points.at(node);
-		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		const SDL_Rect dstrect = { static_cast<int>(p.x-5), static_cast<int>(p.y-5), w, h };
 		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xA3, 0xBE, 0x8C ) );
 	}
 
 	if( !path.points.empty() )
 	{
 		struct sPoint2D p = path.points.at(nextNode);
-		const SDL_Rect dstrect = { p.x-5, p.y-5, w, h };
+		const SDL_Rect dstrect = { static_cast<int>(p.x-5), static_cast<int>(p.y-5), w, h };
 		SDL_FillRect( m_screenSurface, &dstrect, SDL_MapRGB( m_screenSurface->format, 0xA3, 0xBE, 0x8C ) );
 	}
 
@@ -174,16 +174,26 @@ Game::draw()
 		SDL_SetRenderDrawColor( m_renderer, 136, 192, 208, SDL_ALPHA_OPAQUE );
 		
 		float i = path.ClosestIndex( node, nextNode, mouse );
-		fprintf( stderr, "Idx: %f\n", i );
+		float distance = path.GetDistance( i );
+
 		struct sPoint2D p = path.GetSplinePoint( i );
 		struct sPoint2D g = path.GetSplineGradient( i );
-		fprintf( stderr, "P: (%d,%d)\tG: (%d,%d)\n", p.x, p.y, g.x, g.y );
+
 		float r = atan2( -g.y, g.x );
 		struct sPoint2D p1 = { (int)  10.0f * sin(r)  + p.x, (int)  10.0f * cos(r) + p.y };
 		struct sPoint2D p2 = { (int) -10.0f * sin(r)  + p.x, (int) -10.0f * cos(r) + p.y };
 
-		fprintf( stderr, "Line: (%d,%d) -- (%d,%d)\n", p1.x, p1.y, p2.x, p2.y );
 		SDL_RenderDrawLine( m_renderer, p1.x, p1.y, p2.x, p2.y);
+
+		float target = i + 0.005f;
+		struct sPoint2D pt = path.GetSplinePoint( target );
+		struct sPoint2D gt = path.GetSplineGradient( target );
+
+		float rt = atan2( -gt.y, gt.x );
+		struct sPoint2D pt1 = { (int)  10.0f * sin(rt)  + pt.x, (int)  10.0f * cos(rt) + pt.y };
+		struct sPoint2D pt2 = { (int) -10.0f * sin(rt)  + pt.x, (int) -10.0f * cos(rt) + pt.y };
+
+		SDL_RenderDrawLine( m_renderer, pt1.x, pt1.y, pt2.x, pt2.y);
 	}
 
 	// Update the surface
@@ -215,7 +225,8 @@ Game::shutdown()
 void
 Game::addPoint( int x, int y )
 {
-	path.points.push_back( sPoint2D{ x, y } );
+	path.points.push_back( sPoint2D{ static_cast<float>(x), static_cast<float>(y) } );
+	path.updateSpline();
 }
 
 void
@@ -225,6 +236,7 @@ Game::removePoint()
 	{
 		path.points.pop_back();
 	}
+	path.updateSpline();
 }
 
 bool
@@ -259,16 +271,18 @@ Game::PointUp()
 	{
 		path.points.at( nSelectedPoint ).y = 0;
 	}
+	path.updateSpline();
 }
 
 void
 Game::PointDown()
 {
 	path.points.at( nSelectedPoint ).y += 10;
-	if( path.points.at( nSelectedPoint ).y > ScreenHeight() - 5 )
+	if( path.points.at( nSelectedPoint ).y > ScreenHeight() - 10 )
 	{
-		path.points.at( nSelectedPoint ).y = ScreenHeight() - 5;
+		path.points.at( nSelectedPoint ).y = ScreenHeight() - 10;
 	}
+	path.updateSpline();
 }
 
 void
@@ -279,16 +293,18 @@ Game::PointLeft()
 	{
 		path.points.at( nSelectedPoint ).x = 0;
 	}
+	path.updateSpline();
 }
 
 void
 Game::PointRight()
 {
 	path.points.at( nSelectedPoint ).x += 10;
-	if( path.points.at( nSelectedPoint ).x > ScreenWidth() - 5 )
+	if( path.points.at( nSelectedPoint ).x > ScreenWidth() - 10 )
 	{
-		path.points.at( nSelectedPoint ).x = ScreenWidth() - 5;
+		path.points.at( nSelectedPoint ).x = ScreenWidth() - 10;
 	}
+	path.updateSpline();
 }
 
 const int
@@ -319,7 +335,6 @@ Game::NextNode()
 		nextNode = 0;
 	}
 		
-	fprintf( stderr, "Node: %d\tLap: %d\n", node, lap );
 }
 
 void

@@ -7,8 +7,6 @@
 
 #include "event.h"
 
-using point = std::pair< int, int >;
-
 class Game {
 
 public:
@@ -48,6 +46,7 @@ public:
 	struct sSpline
 	{
 		std::vector< sPoint2D > points;
+		float fTotalSplineLength = 0.0f;
 
 		sPoint2D GetSplinePoint( float t )
 		{
@@ -78,7 +77,7 @@ public:
 					 + points[p2].y * q3
 					 + points[p3].y * q4;
 
-			return { tx*0.5, ty*0.5 };
+			return { tx*0.5f, ty*0.5f };
 		}
 
 		sPoint2D GetSplineGradient( float t )
@@ -109,7 +108,7 @@ public:
 					 + points[p2].y * q3
 					 + points[p3].y * q4;
 
-			return { tx*0.5, ty*0.5 };
+			return { tx*0.5f, ty*0.5f };
 		}
 
 		float CalculateSegmentLength( int node )
@@ -150,9 +149,41 @@ public:
 
 		}
 
+		float GetDistance( float t )
+		{
+			float length = 0;
+
+			float fStepSize = 0.005f;
+			float diff = 0;
+			
+			float i = 0;
+			for( i = 0; i < t; i++ )
+			{
+				length += points[ (int) i ].length;
+				diff = t-i;
+			}
+
+			sPoint2D old_point, new_point;
+			old_point = GetSplinePoint( i );
+
+			for( i -= 1; i < t; i += fStepSize )
+			{
+				new_point = GetSplinePoint( i );
+
+				float dx = new_point.x - old_point.x;
+				float dy = new_point.y - old_point.y;
+
+				length += sqrtf( ( dx * dx ) + ( dy * dy ) );
+
+				old_point = new_point;
+			}
+
+			return length;
+
+		}
+
 		float ClosestIndex( int node, int nextNode, struct sPoint2D mouse)
 		{
-			fprintf( stderr, "Node: %d\tNext: %d\tMouse: (%f,%f)\n", node, nextNode, mouse.x, mouse.y);
 			struct sPoint2D closest = { 0.0f, 0.0f, 0.0f };
 			float closestLength = 999999.9f;
 			float closestIndex = 0.0f;
@@ -196,6 +227,16 @@ public:
 			}
 			return closestIndex;
 		}
+
+		void updateSpline()
+		{
+			fTotalSplineLength = 0.0f;
+
+			for( float t = 0.0f; t < (float) points.size(); t += 0.005f )
+			{
+				fTotalSplineLength += (points[t].length = CalculateSegmentLength( t ));
+			}
+		}
 		
 	};
 
@@ -208,10 +249,10 @@ public:
 	int nextNode = 1;
 	int lap = 1;
 
-	int track = 0;
+	int track = 1;
 	void ToggleTrack();
 
-	int agent = 0;
+	int agent = 1;
 	void ToggleAgent();
 
 	struct sPoint2D mouse;
