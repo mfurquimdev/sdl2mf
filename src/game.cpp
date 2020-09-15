@@ -8,6 +8,7 @@ Game::Game( int argc, char* args[] )
 	fprintf( stderr, "Game::Game()\n" );
 	m_window = NULL;
 	m_screenSurface = NULL;
+	m_images = vector<Image*>();
 
 	initialize();
 	loadAssets();
@@ -69,22 +70,36 @@ Game::loadAssets()
 {
 	bool assetsLoaded = true;
 
-	const char* hello_world_file_path = "assets/lazyfoo/hello_world.bmp";
-	const char* x_file_path = "assets/lazyfoo/x.bmp";
+	const string lazyFooPath ("assets/lazyfoo");
 
-	// Load image
-	m_helloWorld = SDL_LoadBMP( hello_world_file_path );
-	if( m_helloWorld == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", hello_world_file_path, SDL_GetError() );
-		assetsLoaded = false;
-	}
+	Image* down = new Image(lazyFooPath, "down.bmp");
+	m_images.push_back(down);
 
-	m_x = SDL_LoadBMP( x_file_path );
-	if( m_x == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", x_file_path, SDL_GetError() );
-		assetsLoaded = false;
+	Image* hello_world = new Image(lazyFooPath, "hello_world.bmp");
+	hello_world->Drawable(true);
+	m_images.push_back(hello_world);
+
+	Image* left = new Image(lazyFooPath, "left.bmp");
+	m_images.push_back(left);
+
+	Image* press = new Image(lazyFooPath, "press.bmp");
+	m_images.push_back(press);
+
+	Image* right = new Image(lazyFooPath, "right.bmp");
+	m_images.push_back(right);
+
+	Image* up = new Image(lazyFooPath, "up.bmp");
+	m_images.push_back(up);
+
+	Image* x = new Image(lazyFooPath, "x.bmp");
+	m_images.push_back(x);
+
+	// Load images
+	for (auto image: m_images) {
+		assetsLoaded = image->Load();
+		if (!assetsLoaded) {
+			break;
+		}
 	}
 
 	return assetsLoaded;
@@ -99,24 +114,10 @@ Game::draw()
 	// Fill the surface white
 	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
 
-	// Center the image on screen
-	SDL_Rect helloWorldDstrect = {
-		(m_screenSurface->w - m_helloWorld->w)/2,
-		(m_screenSurface->h - m_helloWorld->h)/2,
-		m_helloWorld->w,
-		m_helloWorld->h,
-	};
-
-	SDL_Rect xDstrect = {
-		(m_screenSurface->w - m_x->w)/2,
-		(m_screenSurface->h - m_x->h)/2,
-		m_x->w,
-		m_x->h,
-	};
-
 	// Apply image
-	SDL_BlitSurface( m_helloWorld, NULL, m_screenSurface, &helloWorldDstrect );
-	SDL_BlitSurface( m_x, NULL, m_screenSurface, &xDstrect );
+	for (auto image: m_images) {
+		image->Draw(m_screenSurface);
+	}
 
 	// Update the surface
 	SDL_UpdateWindowSurface( m_window );
@@ -126,13 +127,13 @@ void
 Game::shutdown()
 {
 	fprintf( stderr, "Shutdown()\n" );
+
 	// Deallocate surface
-	SDL_FreeSurface( m_helloWorld );
-	m_helloWorld = NULL;
-
-	SDL_FreeSurface( m_x );
-	m_x = NULL;
-
+	for (auto image: m_images) {
+		delete(image);
+	}
+	m_images.clear();
+	
 	// Destroy window
 	SDL_DestroyWindow( m_window );
 	m_window  = NULL;

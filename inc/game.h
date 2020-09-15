@@ -1,8 +1,12 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <vector>
 
 #include "event.h"
+#include "image.h"
+
+using namespace std;
 
 class Game {
 
@@ -19,8 +23,8 @@ public:
 private:
 
 	// Consts
-	const int DEFAULT_SCREEN_WIDTH = 854;
-	const int DEFAULT_SCREEN_HEIGHT = 480;
+	const int DEFAULT_SCREEN_WIDTH = 1280;
+	const int DEFAULT_SCREEN_HEIGHT = 720;
 	const char* DEFAULT_WINDOW_TITLE = "SDL2MF";
 
 	// Game's main functions
@@ -28,6 +32,23 @@ private:
 	bool loadAssets();
 	void draw();
 	void shutdown();
+
+	//Key press surfaces constants
+	enum KeyPressSurfaces
+	{
+		KEY_PRESS_SURFACE_DEFAULT,
+		KEY_PRESS_SURFACE_UP,
+		KEY_PRESS_SURFACE_DOWN,
+		KEY_PRESS_SURFACE_LEFT,
+		KEY_PRESS_SURFACE_RIGHT,
+		KEY_PRESS_SURFACE_TOTAL
+	};
+
+	//The images that correspond to a keypress
+	SDL_Surface* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
+
+	//Current displayed image
+	SDL_Surface* gCurrentSurface = NULL;
 
 	// Variables
 	bool m_quit = false;
@@ -43,6 +64,5 @@ private:
 	SDL_Surface* m_screenSurface = NULL;
 
 	// The image loaded and shown on the screen
-	SDL_Surface* m_helloWorld = NULL;
-	SDL_Surface* m_x = NULL;
+	vector<Image*> m_images;
 };

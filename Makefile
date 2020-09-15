@@ -44,7 +44,8 @@ INC = -I${INC_DIR}
 #-------------------------------------------------------------------------------
 CC=g++
 CFLAGS= -Wall -Wextra -pedantic -ansi -std=c++17
-LFLAGS= -lSDL2
+LFLAGS= -lSDL2 -lSDL2_image -lSDL_ttf -lpthread
+
 
 TARGET=$(BIN_DIR)/$(NAME)
 
