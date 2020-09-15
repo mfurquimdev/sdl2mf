@@ -2,6 +2,9 @@
 #include "event.h"
 
 #include <stdio.h>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 Game::Game( int argc, char* args[] )
 {
@@ -70,29 +73,10 @@ Game::loadAssets()
 {
 	bool assetsLoaded = true;
 
-	const string lazyFooPath ("assets/lazyfoo");
-
-	Image* down = new Image(lazyFooPath, "down.bmp");
-	m_images.push_back(down);
-
-	Image* hello_world = new Image(lazyFooPath, "hello_world.bmp");
-	hello_world->Drawable(true);
-	m_images.push_back(hello_world);
-
-	Image* left = new Image(lazyFooPath, "left.bmp");
-	m_images.push_back(left);
-
-	Image* press = new Image(lazyFooPath, "press.bmp");
-	m_images.push_back(press);
-
-	Image* right = new Image(lazyFooPath, "right.bmp");
-	m_images.push_back(right);
-
-	Image* up = new Image(lazyFooPath, "up.bmp");
-	m_images.push_back(up);
-
-	Image* x = new Image(lazyFooPath, "x.bmp");
-	m_images.push_back(x);
+	const std::string lazyFooPath ("assets/lazyfoo");
+	for (const auto & entry : fs::directory_iterator(lazyFooPath)) {
+		m_images.push_back(new Image(entry.path().parent_path().string().c_str(), entry.path().filename().string().c_str()));
+	}
 
 	// Load images
 	for (auto image: m_images) {
@@ -101,6 +85,8 @@ Game::loadAssets()
 			break;
 		}
 	}
+
+	m_images.back()->Drawable(true);
 
 	return assetsLoaded;
 }
