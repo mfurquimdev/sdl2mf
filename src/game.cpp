@@ -75,6 +75,7 @@ Game::loadAssets()
 
 	const std::string lazyFooPath ("assets/lazyfoo");
 	for (const auto & entry : fs::directory_iterator(lazyFooPath)) {
+		fprintf(stderr, "parent_path: %s\tfilename: %s\n", entry.path().parent_path().string().c_str(), entry.path().filename().string().c_str());
 		m_images.push_back(new Image(entry.path().parent_path().string().c_str(), entry.path().filename().string().c_str()));
 	}
 
@@ -84,10 +85,8 @@ Game::loadAssets()
 		if (!assetsLoaded) {
 			break;
 		}
+		image->Centralize(m_screenSurface);
 	}
-
-	m_images.back()->Drawable(true);
-	m_images.back()->Centralize(m_screenSurface);
 
 	return assetsLoaded;
 }
@@ -100,6 +99,11 @@ Game::draw()
 
 	// Fill the surface white
 	SDL_FillRect( m_screenSurface, NULL, SDL_MapRGB( m_screenSurface->format, 0xEC, 0xEF, 0xF4 ) );
+
+	for (uint8_t i = 0; i < m_images.size(); i++) {
+		m_images.at(i)->Drawable(false);
+	}
+	m_images.at(m_cycleAssets)->Drawable(true);
 
 	// Apply image
 	for (auto image: m_images) {
@@ -139,5 +143,14 @@ void
 Game::gameOver()
 {
 	m_quit = true;
+}
+
+void
+Game::CycleAsset()
+{
+	m_cycleAssets++;
+	if (m_cycleAssets >= m_images.size()) {
+		m_cycleAssets = 0;
+	}
 }
 

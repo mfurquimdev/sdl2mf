@@ -20,6 +20,8 @@ public:
 	bool isGameOver();
 	void gameOver();
 
+	void CycleAsset();
+
 private:
 
 	// Consts
@@ -33,19 +35,7 @@ private:
 	void draw();
 	void shutdown();
 
-	//Key press surfaces constants
-	enum KeyPressSurfaces
-	{
-		KEY_PRESS_SURFACE_DEFAULT,
-		KEY_PRESS_SURFACE_UP,
-		KEY_PRESS_SURFACE_DOWN,
-		KEY_PRESS_SURFACE_LEFT,
-		KEY_PRESS_SURFACE_RIGHT,
-		KEY_PRESS_SURFACE_TOTAL
-	};
-
-	//The images that correspond to a keypress
-	SDL_Surface* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
+	uint8_t m_cycleAssets = 0;
 
 	//Current displayed image
 	SDL_Surface* gCurrentSurface = NULL;
