@@ -52,11 +52,13 @@ void
 Event::handle_event_keydown( SDL_Event& event, Game &game )
 {
 	switch( event.key.keysym.sym ) {
-		case (SDLK_ESCAPE):
-		case (SDLK_q):
+		case SDLK_ESCAPE:
+		case SDLK_q:
 			game.gameOver();
 			break;
 
+		case SDLK_UP:
+			game.CycleAsset();
 		default:
 			break;
 	}
