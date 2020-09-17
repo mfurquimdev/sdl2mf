@@ -87,6 +87,7 @@ Game::loadAssets()
 	}
 
 	m_images.back()->Drawable(true);
+	m_images.back()->Centralize(m_screenSurface);
 
 	return assetsLoaded;
 }

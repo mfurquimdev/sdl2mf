@@ -87,6 +87,20 @@ Image::Draw(SDL_Surface* screenSurface)
 }
 
 void
+Image:: Centralize(const SDL_Rect& largerSurface)
+{
+	m_dimensions.x = (largerSurface.w - m_dimensions.w)/2;
+	m_dimensions.y = (largerSurface.h - m_dimensions.h)/2;
+}
+
+void
+Image:: Centralize(const SDL_Surface* largerSurface)
+{
+	m_dimensions.x = (largerSurface->w - m_dimensions.w)/2;
+	m_dimensions.y = (largerSurface->h - m_dimensions.h)/2;
+}
+
+void
 Image::Print()
 {
 	fprintf( stderr, "%s/%s { %d, %d, %d, %d } %d\n", m_path.c_str(), m_name.c_str(), m_dimensions.x, m_dimensions.y, m_dimensions.w, m_dimensions.h, m_drawable ); 

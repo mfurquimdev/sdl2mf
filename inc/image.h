@@ -21,6 +21,8 @@ public:
 	void Draw(SDL_Surface*);
 	void Drawable(bool drawable);
 	bool Drawable() const;
+	void Centralize(const SDL_Rect&);
+	void Centralize(const SDL_Surface*);
 
 //	void MoveTo(const int& x, const int& y);
 //	pair<int, int> MoveRelative(const int& x, const int& y);
